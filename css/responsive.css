@@ -1,0 +1,43 @@
+@media (min-width: 992px) and (max-width: 1399.98px){
+
+    .wsmenu > .wsmenu-list > li > a {
+        padding: 10px 8px !important;
+        font-size: 17px !important;
+    }
+
+    .desktoplogo {
+        margin-right: 40px !important;
+        margin-left: 10px !important;
+    }
+
+    .desktoplogo img {
+        width: 140px !important;
+    }
+
+    .wsmainfull {
+        padding: 0 15px !important;
+    }
+
+    .wsmenu-list {
+        justify-content: flex-start !important;
+    }
+
+    .wsmenu > .wsmenu-list > li {
+        margin: 0 7px !important;
+    }
+
+    .wsmenu > .wsmenu-list > li:last-child {
+        margin-left: auto !important;
+    }
+
+    .wsmenu > .wsmenu-list > li.header-btn a {
+        background-color: #ffffff !important;
+        color: #000 !important;
+    }
+
+    .wsmenu > .wsmenu-list > li.header-btn a:hover {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+
+}
