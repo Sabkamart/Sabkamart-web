@@ -24,6 +24,8 @@
 	<link rel="apple-touch-icon" sizes="76x76" href="images/apple-touch-icon-76x76.png">
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 	<link rel="icon" href="images/apple-touch-icon.png" type="image/x-icon">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 
 	<!-- GOOGLE FONTS -->
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
@@ -1404,32 +1406,59 @@ $(document).ready(function () {
 </script>
 
 <style>
-  /* Apply styles only if the page has the ID #demo2-page */
-  #demo2-page .sub-menu li {
-      color: white !important; /* Ensures the text is readable */
-  }
+    /* Dropdown Styling */
+    .sub-menu {
+       background-color: white !important; /* White background */
+    list-style: none; /* Remove default list styles */
+    padding: 10px;
+    border: 1px solid #ccc; /* Light border */
+    position: absolute;
+    display: none; /* Initially hidden */
+    min-width: 180px; /* Adjust width for better layout */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+    }
 
-  #demo2-page .sub-menu {
-      background-color: rgba(0, 0, 0, 0.85) !important; /* Dark but slightly transparent */
-      border-radius: 5px; /* Soft rounded edges */
-      padding: 10px;
-  }
+    .sub-menu a {
+    font-size: 16px !important; /* Keep a clean, readable font size */
+    font-weight: 500 !important; /* Slightly bold but not too heavy */
+    font-family: 'Poppins', sans-serif !important; /* Same font as main menu */
+    letter-spacing: 0.4px; /* Add slight spacing */
+    text-transform: uppercase; /* Makes dropdown more readable */
+     color: white; /* Black text */
+        text-decoration: none; /* Remove underlines */
+         padding: 10px 15px;
+	background-color: black !important;
+	
+    }
 
-  #demo2-page .sub-menu li:hover {
-      background-color: rgba(255, 255, 255, 0.2); /* Light hover effect */
-  }
+    .sub-menu a:hover {
+        background-color: #f0f0f0; /* Light gray hover effect */
+    }
 
-  #demo2-page .sub-menu {
-      position: absolute;
-      display: none; /* Hide initially */
-      z-index: 1000; /* Ensure it stays above other elements */
-  }
-
-  #demo2-page .menu-item:hover .sub-menu {
-      display: block !important;
-  }
+    /* Show dropdown on hover */
+    li:hover > .sub-menu {
+        display: block;
+    }
 </style>
 
+<style>
+/* Main Menu Styling */
+nav ul li a {
+    font-size: 18px; /* Increase font size for better readability */
+    font-weight: 600; /* Slightly bold for emphasis */
+    font-family: 'Poppins', sans-serif; /* Modern and clean font */
+    letter-spacing: 0.5px; /* Add slight spacing for elegance */
+    text-transform: uppercase; /* Optional: Makes it all caps */
+}
+
+/* Hover effect */
+nav ul li a:hover {
+    color: #ffcc00; /* Highlight effect on hover */
+    transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+
+</style>
 
 </body>
 </html>
