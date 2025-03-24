@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    if (window.location.pathname.includes("demo-2.html")) {
+    if (window.location.pathname.includes("index.html")) {
         
         function updateTextColors() {
             $(".wsmainfull a, .wsmainfull span, .wsmainfull i, .wsmainfull nav a").each(function () {
