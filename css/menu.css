@@ -1097,7 +1097,9 @@ body.wsactive {
   -o-transition: all 0.25s ease-in-out;
   -ms-transition: all 0.25s ease-in-out;
   transition: all 0.25s ease-in-out;
-  box-shadow: 0 0 1px rgba(0, 0, 0, .3);
+  /* box-shadow: 0 0 1px rgba(0, 0, 0, .3); */
+  height: 100px;
+  background-image: linear-gradient(to right, #181818 50%, #FFCD00 50%) !important;
 }
 
 .wsactive .wsmobileheader {
