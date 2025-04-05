@@ -101,7 +101,7 @@
 
 
 				<!-- MOBILE HEADER -->
-				<div class="wsmobileheader clearfix">
+				<div class="wsmobileheader wsmobileheader-main  clearfix">
 					<span class="smllogo">
 						<a href="#hero-2">
 							<img class="lt-img" src="images/logo-black.png" alt="logo" style="width: 500px !important; height: auto !important; max-height: none !important;">
@@ -1355,7 +1355,7 @@
 <script>
 $(document).ready(function () {
     // Check if the current page is index.html
-    if (window.location.pathname.includes("index.html")) {
+    if (window.location.pathname.endsWith("index.html")) {
 
         function updateTextColors() {
             $(".wsmainfull a, .wsmainfull span, .wsmainfull i, .wsmainfull nav a").each(function () {

@@ -878,7 +878,9 @@ ul {
 
 ul.simple-list {
   list-style: disc;
-  margin-left: 15px;
+}
+.simple-list li {
+  margin-left: 0.75rem;
 }
 
 ol.digit-list p,
