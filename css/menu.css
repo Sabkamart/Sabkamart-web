@@ -309,7 +309,7 @@
 
 .wsmenu > .wsmenu-list > li > ul.sub-menu {
   position: absolute;
-  top: 70px;
+  /* top: 70px; */
   z-index: 1000;
   margin: 0px;
   padding: 12px;
@@ -1120,7 +1120,7 @@ body.wsactive {
 
 .wsmobileheader .smllogo {
   display: inline-block;
-  margin-top: 12px;
+  /* margin-top: 12px; */
   padding-left: 18px;
 }
 
@@ -1192,12 +1192,12 @@ body.wsactive {
 
 .wsanimated-arrow span:before {
   top: -7px;
-  width: 26px;
+  /* width: 26px; */
 }
 
 .wsanimated-arrow span:after {
   bottom: -7px;
-  width: 20px;
+  /* width: 20px; */
 }
 
 .wsanimated-arrow span,
