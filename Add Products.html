@@ -253,6 +253,16 @@
       color: #666;
       margin-top: 5px;
     }
+
+    .debug-info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #666;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -329,12 +339,16 @@
 
     <button type="submit" class="btn-save" id="saveBtn">Submit</button>
     <div id="alertBox" class="alert"></div>
+    <div id="debugInfo" class="debug-info"></div>
   </div>
 </form>
 
 <script>
   // Configuration
-  const NODE_SERVER_URL = 'https://sabkamart.com';
+const NODE_SERVER_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000'  // Change from 3000 to 5000
+  : 'https://sabkamart.com';
+
   const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzUbWKXgk-HQBxhSubYmdrlNRUW_KcnjHRj4G3PedNAjwVh-ehhQmzcVR8Nlj5MFJ3/exec';
 
   // Category to Subcategory mapping
@@ -348,6 +362,7 @@
 
   // DOM elements
   const alertBox = document.getElementById('alertBox');
+  const debugInfo = document.getElementById('debugInfo');
   const saveBtn = document.getElementById('saveBtn');
   const uploadBox = document.getElementById('uploadBox');
   const fileInput = document.getElementById('upload-image');
@@ -362,13 +377,24 @@
   let selectedIndex = -1;
   let isDropdownOpen = false;
 
-  // Alert function
-  function showAlert(message, type) {
+  // Enhanced alert function with debug info
+  function showAlert(message, type, debugDetails = null) {
     alertBox.className = `alert ${type}`;
     alertBox.textContent = message;
     alertBox.style.display = 'block';
+    
+    if (debugDetails) {
+      debugInfo.innerHTML = `<strong>Debug Info:</strong><br>${JSON.stringify(debugDetails, null, 2)}`;
+      debugInfo.style.display = 'block';
+    } else {
+      debugInfo.style.display = 'none';
+    }
+    
     if (type === 'success') {
-      setTimeout(() => alertBox.style.display = 'none', 5000);
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+        debugInfo.style.display = 'none';
+      }, 5000);
     }
   }
 
@@ -391,6 +417,49 @@
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Enhanced image upload function
+  async function uploadImageToServer(imageFile) {
+    const uploadData = new FormData();
+    uploadData.append('uploadImage', imageFile);
+
+    console.log('Uploading file:', {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    });
+
+    const response = await fetch(`${NODE_SERVER_URL}/upload`, {
+      method: 'POST',
+      body: uploadData,
+      headers: {
+        // Don't set Content-Type header - let browser set it with boundary
+      }
+    });
+
+    console.log('Upload response status:', response.status);
+    console.log('Upload response headers:', Object.fromEntries(response.headers.entries()));
+
+    const responseText = await response.text();
+    console.log('Upload response text:', responseText);
+
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Invalid JSON response: ${responseText}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(responseData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!responseData.success) {
+      throw new Error(responseData.message || 'Upload failed');
+    }
+
+    return responseData;
   }
 
   // Submit data to Google Sheets via JSONP
@@ -452,7 +521,7 @@
     });
   }
 
-  // Searchable dropdown functions
+  // Searchable dropdown functions (keeping the same as before)
   function filterSubcategories(searchTerm) {
     if (!currentSubcategories.length) return [];
     
@@ -543,7 +612,7 @@
     }
   }
 
-  // Subcategory input event listeners
+  // Event listeners (keeping the same as before for dropdown functionality)
   subcategoryInput.addEventListener('click', function() {
     if (!this.disabled) {
       this.removeAttribute('readonly');
@@ -607,7 +676,7 @@
         }
         break;
         
-              case 'Escape':
+      case 'Escape':
         subcategoryList.classList.remove('show');
         dropdownArrow.classList.remove('open');
         isDropdownOpen = false;
@@ -695,7 +764,7 @@
     }
   });
 
-  // Form submission handler
+  // Enhanced form submission handler
   document.getElementById('productForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -720,23 +789,8 @@
 
     try {
       // Step 1: Upload image to Node.js server
-      const uploadData = new FormData();
-      uploadData.append('uploadImage', imageFile);
-
-      const uploadRes = await fetch(`${NODE_SERVER_URL}/upload`, {
-        method: 'POST',
-        body: uploadData
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Image upload failed. Please try again.');
-      }
-
-      const uploadJson = await uploadRes.json();
-
-      if (!uploadJson.success || !uploadJson.imageUrl) {
-        throw new Error('Image upload failed. Please try again.');
-      }
+      const uploadResult = await uploadImageToServer(imageFile);
+      console.log('Upload successful:', uploadResult);
 
       // Step 2: Save data to Google Sheets
       saveBtn.textContent = 'Saving...';
@@ -750,7 +804,7 @@
         product: formData.get('product'),
         quantity: formData.get('quantity'),
         unit: formData.get('unit'),
-        imageUrl: uploadJson.imageUrl,
+        imageUrl: uploadResult.imageUrl,
         timestamp: new Date().toISOString()
       };
 
@@ -775,14 +829,64 @@
       uploadLabel.style.display = 'block';
       
     } catch (err) {
+      console.error('Error during submission:', err);
+      
+      let errorMessage = 'An error occurred';
+      let debugDetails = null;
+      
       if (err.message.includes('Failed to fetch')) {
-        showAlert('Connection error. Please check your internet connection.', 'error');
+        errorMessage = 'Connection error. Please check your internet connection.';
+        debugDetails = {
+          error: 'Network Error',
+          message: err.message,
+          serverUrl: NODE_SERVER_URL
+        };
+      } else if (err.message.includes('CORS')) {
+        errorMessage = 'CORS error. Please contact support.';
+        debugDetails = {
+          error: 'CORS Error',
+          message: err.message,
+          origin: window.location.origin
+        };
+      } else if (err.message.includes('HTTP 5')) {
+        errorMessage = 'Server error. Please try again later.';
+        debugDetails = {
+          error: 'Server Error',
+          message: err.message,
+          timestamp: new Date().toISOString()
+        };
       } else {
-        showAlert(err.message, 'error');
+        errorMessage = err.message;
+        debugDetails = {
+          error: 'Upload Error',
+          message: err.message,
+          fileSize: imageFile.size,
+          fileType: imageFile.type,
+          fileName: imageFile.name
+        };
       }
+      
+      showAlert(errorMessage, 'error', debugDetails);
+      
     } finally {
       saveBtn.disabled = false;
       saveBtn.textContent = 'Submit';
+    }
+  });
+
+  // Test server connection on page load
+  window.addEventListener('load', async function() {
+    try {
+      const response = await fetch(`${NODE_SERVER_URL}/health`);
+      const data = await response.json();
+      console.log('Server health check:', data);
+    } catch (error) {
+      console.warn('Server health check failed:', error);
+      showAlert('Warning: Server connection test failed. Upload may not work.', 'error', {
+        error: 'Health Check Failed',
+        message: error.message,
+        serverUrl: NODE_SERVER_URL
+      });
     }
   });
 </script>
