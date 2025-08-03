@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Own Item</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .category-box {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .category-box select,
+    #unit {
+      padding: 10px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      min-width: 180px;
+      cursor: pointer;
+      height: 42px;
+      box-sizing: border-box;
+    }
+
+    /* Searchable dropdown styles */
+    .searchable-dropdown {
+      position: relative;
+      min-width: 180px;
+    }
+
+    .dropdown-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .searchable-dropdown input {
+      width: 100%;
+      padding: 10px 40px 10px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      height: 42px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .searchable-dropdown input:focus {
+      outline: none;
+      border-color: #007bff;
+      background: #fff;
+    }
+
+    .searchable-dropdown input:disabled {
+      background: #e9ecef;
+      cursor: not-allowed;
+    }
+
+    .dropdown-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #666;
+      font-size: 12px;
+      transition: transform 0.2s ease;
+    }
+
+    .dropdown-arrow.open {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .dropdown-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .dropdown-list.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dropdown-item.selected {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .no-results {
+      padding: 10px 14px;
+      color: #999;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .container {
+      width: 400px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+
+    .upload-box {
+      text-align: center;
+      border: 2px dashed #ccc;
+      padding: 20px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    .upload-box:hover {
+      border-color: #999;
+    }
+
+    .upload-box.has-file {
+      border-color: #28a745;
+      background-color: #f8fff9;
+    }
+
+    .file-preview {
+      margin-top: 10px;
+      max-width: 200px;
+      max-height: 150px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #upload-image {
+      display: none;
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .quantity-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .quantity-group input {
+      flex: 1;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 12px;
+      background-color: #ffc107;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .btn-save:hover {
+      background-color: #e0a800;
+    }
+
+    .btn-save:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .alert.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert.loading {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .file-info {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .debug-info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #666;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<form id="productForm">
+  <div class="category-box">
+    <select name="category" id="category" required>
+      <option value="">Select Category</option>
+      <option value="Kitchen & Grocery">Kitchen & Grocery</option>
+      <option value="Household Essentials">Household Essentials</option>
+      <option value="Snacks & Drinks">Snacks & Drinks</option>
+      <option value="Other Home Needs">Other Home Needs</option>
+      <option value="Stationary">Stationary</option>
+    </select>
+
+    <div class="searchable-dropdown">
+      <div class="dropdown-input-container">
+        <input 
+          type="text" 
+          name="subcategory" 
+          id="subcategory" 
+          placeholder="Select SubCategory" 
+          autocomplete="off"
+          disabled 
+          readonly
+          required
+        >
+        <span class="dropdown-arrow" id="dropdownArrow">▼</span>
+      </div>
+      <div class="dropdown-list" id="subcategoryList"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="upload-box" id="uploadBox">
+      <div id="uploadContent">
+        <div id="uploadLabel">
+          📷<br>Click to upload image<br><small>JPG, PNG, WebP (100 KB)</small>
+        </div>
+        <input type="file" name="uploadImage" id="upload-image" accept="image/png, image/jpeg, image/webp" required />
+        <div id="filePreview"></div>
+      </div>
+    </div>
+
+    <div class="radio-group">
+      <label><input type="radio" name="itemType" value="brand" required> Brand Item</label>
+      <label><input type="radio" name="itemType" value="loose" required> Loose Item</label>
+    </div>
+
+    <div class="form-group">
+      <input type="text" name="barcode" id="barcode" placeholder="BarCode Number" required>
+    </div>
+    <div class="form-group">
+      <input type="text" name="brand" id="brand" placeholder="Enter Brand Name" required>
+    </div>
+    <div class="form-group">
+      <input type="text" name="product" id="product" placeholder="Enter Product Full Name" required>
+    </div>
+
+    <div class="form-group quantity-group">
+      <input type="text" name="quantity" id="quantity" placeholder="Enter Quantity" required>
+      <select name="unit" id="unit" required>
+        <option value="">Select Unit</option>
+        <option value="Kg">Kg</option>
+        <option value="g">g</option>
+        <option value="L">L</option>
+        <option value="ml">ml</option>
+        <option value="Pieces">Pieces</option>
+        <option value="Combo">Combo</option>
+        <option value="Pack">Pack</option>
+        <option value="Sheets">Sheets</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-save" id="saveBtn">Submit</button>
+    <div id="alertBox" class="alert"></div>
+    <div id="debugInfo" class="debug-info"></div>
+  </div>
+</form>
+
+<script>
+  // Configuration
+const NODE_SERVER_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000'  // Change from 3000 to 5000
+  : 'https://sabkamart.com';
+
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzUbWKXgk-HQBxhSubYmdrlNRUW_KcnjHRj4G3PedNAjwVh-ehhQmzcVR8Nlj5MFJ3/exec';
+
+  // Category to Subcategory mapping
+  const categoryMap = {
+    "Household Essentials": ["Toilet Cleaners", "Floor Cleaners", "Soaps", "Face Creams", "Shampoo", "Tooth Paste", "Hair Oil", "Body Lotion", "Detergent Powder", "Basic Pharma", "Handwash & Sanitizer", "Hair Removals", "Sanitary Pads", "Tooth Brush", "Detergent Bars", "Fabric Care", "Conditioner", "Body Washes", "Face Powders", "Face Wash & Scrub", "Liquid Detergents", "Utensils Cleaners", "Baby Care"],
+    "Kitchen & Grocery": ["Ground Nut", "Toor Dal", "Honey", "Wheat Flour", "Tea Powder", "Local Rice", "Dry Coconut", "Jaggery", "Salt", "Sugar", "Basmati Rice", "Semiya", "Garlic", "Eggs", "Tamarind", "Ghee", "Red Mirchi", "Tumeric", "Chicken & Garam Masala", "Ginger Garlic Paste", "Other Masalas", "Dates", "Cashew Nuts", "Almond & Pista", "Raisins", "Other Dry Fruits", "Mango", "Lemon & Tomato", "Other Pickles", "Sunflower Oil", "Groundnut Oil", "Coffee Powder", "Healthy Drinks", "Other Oils", "Papads", "Poha", "Gram Flour", "Maida", "Other Flours", "Chana Dal", "Phutana", "Other Dals", "Upma Rava", "Idli Rava", "Bombay Rava", "Baking Soda", "Jeera", "Jeera & Mustard Seeds", "Dalchini Sticks & Somp", "Coriander & Pepper seeds", "Other Spi", "Milk Maid", "Gulab Jamun", "Saffron", "Peni Rava", "Other Sweets", "Oats"],
+    "Other Home Needs": ["Cloth Clips", "Battery Cell", "Betel Nut", "Rangoli Powder", "CowDung Powder", "Ear Buds", "Toothpick Sticks", "Mouth Freshner", "Candles", "Match Box", "Plastic Bag", "Tissue Papers", "Agarbatti", "Coconut", "Camphor & Sambrani", "Kumkum & Vibhuti", "Deepa Oil & Diyabatti", "Broom", "Mop", "Home", "Bathroom", "Mosquito", "Cockroach", "Rat", "Ant", "Other", "Plates", "Glasses", "Cups & Spoons", "Paper Rolls", "Aluminium Foil", "Foil Container"],
+    "Snacks & Drinks": ["Soft Drinks", "Cookies", "Chips", "Tubs & Party Packs", "Pasta", "Bhujia & Namkeens", "Indian Snacks", "Sweets", "Jam", "Ketchup", "Spreads & Dips", "Instant Noodles", "Cup Noodles", "Korean Noodles", "Hakka Noodles", "Other Noodles", "Energy Drinks", "Juices & Fruit Drinks", "Cones & Sticks", "Kulfi", "Cups", "Other Ice Creams", "Soups", "Cheese", "Butter", "Paneer", "Buns", "Cadbury", "Nestle", "Amul", "Other Chocolates", "Marie & Digestive", "Cream Biscuits", "Cakes & Pies", "Rusk"],
+    "Stationary": ["Books", "Fevi Sticks & Gums", "Stapler & Pins", "Cello Tape", "Chalks", "Pens & Pencils", "Sketch Pens & Glitters", "Files", "Geometry Box", "Exam Pad", "Color Pens & Paint", "Pen Holder"]
+  };
+
+  // DOM elements
+  const alertBox = document.getElementById('alertBox');
+  const debugInfo = document.getElementById('debugInfo');
+  const saveBtn = document.getElementById('saveBtn');
+  const uploadBox = document.getElementById('uploadBox');
+  const fileInput = document.getElementById('upload-image');
+  const filePreview = document.getElementById('filePreview');
+  const uploadLabel = document.getElementById('uploadLabel');
+
+  // Searchable dropdown elements
+  const subcategoryInput = document.getElementById('subcategory');
+  const subcategoryList = document.getElementById('subcategoryList');
+  const dropdownArrow = document.getElementById('dropdownArrow');
+  let currentSubcategories = [];
+  let selectedIndex = -1;
+  let isDropdownOpen = false;
+
+  // Enhanced alert function with debug info
+  function showAlert(message, type, debugDetails = null) {
+    alertBox.className = `alert ${type}`;
+    alertBox.textContent = message;
+    alertBox.style.display = 'block';
+    
+    if (debugDetails) {
+      debugInfo.innerHTML = `<strong>Debug Info:</strong><br>${JSON.stringify(debugDetails, null, 2)}`;
+      debugInfo.style.display = 'block';
+    } else {
+      debugInfo.style.display = 'none';
+    }
+    
+    if (type === 'success') {
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+        debugInfo.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  // Form validation
+  function validateForm(formData) {
+    const requiredFields = ['category', 'subcategory', 'itemType', 'barcode', 'brand', 'product', 'quantity', 'unit'];
+    for (let field of requiredFields) {
+      if (!formData.get(field) || formData.get(field).trim() === '') {
+        showAlert(`Please fill in the ${field}`, 'error');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // File size formatter
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Enhanced image upload function
+  async function uploadImageToServer(imageFile) {
+    const uploadData = new FormData();
+    uploadData.append('uploadImage', imageFile);
+
+    console.log('Uploading file:', {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    });
+
+    const response = await fetch(`${NODE_SERVER_URL}/upload`, {
+      method: 'POST',
+      body: uploadData,
+      headers: {
+        // Don't set Content-Type header - let browser set it with boundary
+      }
+    });
+
+    console.log('Upload response status:', response.status);
+    console.log('Upload response headers:', Object.fromEntries(response.headers.entries()));
+
+    const responseText = await response.text();
+    console.log('Upload response text:', responseText);
+
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Invalid JSON response: ${responseText}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(responseData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!responseData.success) {
+      throw new Error(responseData.message || 'Upload failed');
+    }
+
+    return responseData;
+  }
+
+  // Submit data to Google Sheets via JSONP
+  function submitToGoogleSheets(data) {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.round(Math.random() * 10000);
+      const timeoutDuration = 20000;
+      
+      // Create callback function
+      window[callbackName] = function(response) {
+        cleanup();
+        
+        if (response && (response.status === 'success' || response.result === 'success')) {
+          resolve(response);
+        } else {
+          reject(new Error(response ? (response.message || response.error || 'Unknown error') : 'No response from Google Sheets'));
+        }
+      };
+      
+      function cleanup() {
+        if (window[callbackName]) {
+          delete window[callbackName];
+        }
+        if (script && script.parentNode) {
+          document.body.removeChild(script);
+        }
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      }
+      
+      // Prepare parameters
+      const params = new URLSearchParams();
+      params.append('callback', callbackName);
+      
+      // Add all data parameters
+      Object.keys(data).forEach(key => {
+        if (data[key] !== null && data[key] !== undefined) {
+          params.append(key, String(data[key]));
+        }
+      });
+      
+      // Create script element
+      const script = document.createElement('script');
+      script.src = `${GOOGLE_APPS_SCRIPT_URL}?${params.toString()}`;
+      
+      script.onerror = function(e) {
+        cleanup();
+        reject(new Error('Failed to connect to Google Sheets. Please try again.'));
+      };
+      
+      document.body.appendChild(script);
+      
+      // Timeout handler
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new Error('Request timeout. Please try again.'));
+      }, timeoutDuration);
+    });
+  }
+
+  // Searchable dropdown functions (keeping the same as before)
+  function filterSubcategories(searchTerm) {
+    if (!currentSubcategories.length) return [];
+    
+    if (!searchTerm.trim()) {
+      return currentSubcategories;
+    }
+    
+    return currentSubcategories.filter(item => 
+      item.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  function renderDropdownList(items) {
+    subcategoryList.innerHTML = '';
+    
+    if (items.length === 0) {
+      const noResults = document.createElement('div');
+      noResults.className = 'no-results';
+      noResults.textContent = 'No matching subcategories found';
+      subcategoryList.appendChild(noResults);
+    } else {
+      items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.textContent = item;
+        div.dataset.index = index;
+        div.addEventListener('click', () => selectSubcategory(item));
+        subcategoryList.appendChild(div);
+      });
+    }
+  }
+
+  function selectSubcategory(value) {
+    subcategoryInput.value = value;
+    subcategoryList.classList.remove('show');
+    dropdownArrow.classList.remove('open');
+    selectedIndex = -1;
+    isDropdownOpen = false;
+    subcategoryInput.blur();
+  }
+
+  function showDropdown() {
+    if (currentSubcategories.length > 0) {
+      const filteredItems = filterSubcategories(subcategoryInput.value);
+      renderDropdownList(filteredItems);
+      subcategoryList.classList.add('show');
+      dropdownArrow.classList.add('open');
+      isDropdownOpen = true;
+    }
+  }
+
+  function hideDropdown() {
+    setTimeout(() => {
+      subcategoryList.classList.remove('show');
+      dropdownArrow.classList.remove('open');
+      selectedIndex = -1;
+      isDropdownOpen = false;
+    }, 150);
+  }
+
+  function toggleDropdown() {
+    if (subcategoryInput.disabled) return;
+    
+    if (isDropdownOpen) {
+      hideDropdown();
+    } else {
+      showDropdown();
+    }
+  }
+
+  function updateSelection(direction) {
+    const items = subcategoryList.querySelectorAll('.dropdown-item:not(.no-results)');
+    if (items.length === 0) return;
+
+    // Remove previous selection
+    items.forEach(item => item.classList.remove('selected'));
+
+    if (direction === 'down') {
+      selectedIndex = selectedIndex < items.length - 1 ? selectedIndex + 1 : 0;
+    } else if (direction === 'up') {
+      selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : items.length - 1;
+    }
+
+    // Add selection to current item
+    if (selectedIndex >= 0 && selectedIndex < items.length) {
+      items[selectedIndex].classList.add('selected');
+      items[selectedIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // Event listeners (keeping the same as before for dropdown functionality)
+  subcategoryInput.addEventListener('click', function() {
+    if (!this.disabled) {
+      this.removeAttribute('readonly');
+      toggleDropdown();
+    }
+  });
+
+  subcategoryInput.addEventListener('focus', function() {
+    if (!this.disabled && !isDropdownOpen) {
+      this.removeAttribute('readonly');
+      showDropdown();
+    }
+  });
+
+  subcategoryInput.addEventListener('blur', function() {
+    this.setAttribute('readonly', 'true');
+    hideDropdown();
+  });
+
+  subcategoryInput.addEventListener('input', function() {
+    const filteredItems = filterSubcategories(this.value);
+    renderDropdownList(filteredItems);
+    selectedIndex = -1;
+    
+    if (!isDropdownOpen) {
+      subcategoryList.classList.add('show');
+      dropdownArrow.classList.add('open');
+      isDropdownOpen = true;
+    }
+  });
+
+  subcategoryInput.addEventListener('keydown', function(e) {
+    if (this.disabled) return;
+    
+    const isDropdownVisible = subcategoryList.classList.contains('show');
+    
+    switch(e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (!isDropdownVisible) {
+          showDropdown();
+        } else {
+          updateSelection('down');
+        }
+        break;
+        
+      case 'ArrowUp':
+        e.preventDefault();
+        if (isDropdownVisible) {
+          updateSelection('up');
+        }
+        break;
+        
+      case 'Enter':
+        e.preventDefault();
+        if (isDropdownVisible) {
+          const selectedItem = subcategoryList.querySelector('.dropdown-item.selected');
+          if (selectedItem) {
+            selectSubcategory(selectedItem.textContent);
+          }
+        }
+        break;
+        
+      case 'Escape':
+        subcategoryList.classList.remove('show');
+        dropdownArrow.classList.remove('open');
+        isDropdownOpen = false;
+        this.blur();
+        break;
+    }
+  });
+
+  // Click outside to close dropdown
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.searchable-dropdown')) {
+      subcategoryList.classList.remove('show');
+      dropdownArrow.classList.remove('open');
+      isDropdownOpen = false;
+    }
+  });
+
+  // File upload handlers
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size
+      if (file.size > 102400) {
+        showAlert('File size too large. Maximum 100KB allowed.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        showAlert('Only JPG, PNG, and WebP files are allowed.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      uploadBox.classList.add('has-file');
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        filePreview.innerHTML = `
+          <img src="${e.target.result}" alt="Preview" class="file-preview">
+          <div class="file-info">
+            ${file.name} (${formatFileSize(file.size)})
+          </div>
+        `;
+        uploadLabel.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      uploadBox.classList.remove('has-file');
+      filePreview.innerHTML = '';
+      uploadLabel.style.display = 'block';
+    }
+  });
+
+  // Upload box click handler
+  uploadBox.addEventListener('click', function(e) {
+    if (e.target !== fileInput && !fileInput.contains(e.target)) {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  // Category change handler
+  document.getElementById('category').addEventListener('change', function () {
+    const category = this.value;
+    
+    // Reset subcategory
+    subcategoryInput.value = '';
+    subcategoryInput.placeholder = 'Select SubCategory';
+    subcategoryList.innerHTML = '';
+    subcategoryList.classList.remove('show');
+    dropdownArrow.classList.remove('open');
+    isDropdownOpen = false;
+    
+    if (category && categoryMap[category]) {
+      currentSubcategories = categoryMap[category];
+      subcategoryInput.disabled = false;
+      subcategoryInput.placeholder = 'Select subcategory...';
+    } else {
+      currentSubcategories = [];
+      subcategoryInput.disabled = true;
+      subcategoryInput.placeholder = 'Select SubCategory';
+    }
+  });
+
+  // Enhanced form submission handler
+  document.getElementById('productForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    if (!validateForm(formData)) return;
+
+    const imageFile = formData.get('uploadImage');
+    if (!imageFile || imageFile.size === 0) {
+      showAlert("Please upload a valid image.", "error");
+      return;
+    }
+
+    if (imageFile.size > 102400) {
+      showAlert("File size too large. Maximum 100KB allowed.", "error");
+      return;
+    }
+
+    // Disable form during submission
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Uploading...';
+    showAlert('Processing your request...', 'loading');
+
+    try {
+      // Step 1: Upload image to Node.js server
+      const uploadResult = await uploadImageToServer(imageFile);
+      console.log('Upload successful:', uploadResult);
+
+      // Step 2: Save data to Google Sheets
+      saveBtn.textContent = 'Saving...';
+      
+      const productData = {
+        category: formData.get('category'),
+        subcategory: formData.get('subcategory'),
+        itemType: formData.get('itemType'),
+        barcode: formData.get('barcode'),
+        brand: formData.get('brand'),
+        product: formData.get('product'),
+        quantity: formData.get('quantity'),
+        unit: formData.get('unit'),
+        imageUrl: uploadResult.imageUrl,
+        timestamp: new Date().toISOString()
+      };
+
+      await submitToGoogleSheets(productData);
+
+      // Success - reset form
+      showAlert('✅ Product saved successfully!', 'success');
+      this.reset();
+      
+      // Reset subcategory dropdown
+      currentSubcategories = [];
+      subcategoryInput.disabled = true;
+      subcategoryInput.placeholder = 'Select SubCategory';
+      subcategoryList.innerHTML = '';
+      subcategoryList.classList.remove('show');
+      dropdownArrow.classList.remove('open');
+      isDropdownOpen = false;
+      
+      // Reset upload box
+      uploadBox.classList.remove('has-file');
+      filePreview.innerHTML = '';
+      uploadLabel.style.display = 'block';
+      
+    } catch (err) {
+      console.error('Error during submission:', err);
+      
+      let errorMessage = 'An error occurred';
+      let debugDetails = null;
+      
+      if (err.message.includes('Failed to fetch')) {
+        errorMessage = 'Connection error. Please check your internet connection.';
+        debugDetails = {
+          error: 'Network Error',
+          message: err.message,
+          serverUrl: NODE_SERVER_URL
+        };
+      } else if (err.message.includes('CORS')) {
+        errorMessage = 'CORS error. Please contact support.';
+        debugDetails = {
+          error: 'CORS Error',
+          message: err.message,
+          origin: window.location.origin
+        };
+      } else if (err.message.includes('HTTP 5')) {
+        errorMessage = 'Server error. Please try again later.';
+        debugDetails = {
+          error: 'Server Error',
+          message: err.message,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        errorMessage = err.message;
+        debugDetails = {
+          error: 'Upload Error',
+          message: err.message,
+          fileSize: imageFile.size,
+          fileType: imageFile.type,
+          fileName: imageFile.name
+        };
+      }
+      
+      showAlert(errorMessage, 'error', debugDetails);
+      
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Submit';
+    }
+  });
+
+  // Test server connection on page load
+  window.addEventListener('load', async function() {
+    try {
+      const response = await fetch(`${NODE_SERVER_URL}/health`);
+      const data = await response.json();
+      console.log('Server health check:', data);
+    } catch (error) {
+      console.warn('Server health check failed:', error);
+      showAlert('Warning: Server connection test failed. Upload may not work.', 'error', {
+        error: 'Health Check Failed',
+        message: error.message,
+        serverUrl: NODE_SERVER_URL
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
