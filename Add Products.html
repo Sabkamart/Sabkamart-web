@@ -1,394 +1,993 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Create Own Item</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      margin: 0;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    <meta charset="UTF-8" />
+    <title>Create Own Item</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .category-box {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: center;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    /* Standard select styling for category */
-    .category-box select {
-      padding: 10px 14px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #f9f9f9;
-      min-width: 180px;
-      cursor: pointer;
-      height: 42px;
-      box-sizing: border-box;
-    }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(255, 179, 0, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .container {
-      width: 400px;
-      padding: 20px;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      background-color: #fff;
-    }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ffb300, #ff8f00, #ffa000);
+            box-shadow: 0 2px 6px rgba(255, 179, 0, 0.3);
+        }
 
-    .radio-group {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 15px;
-    }
+        .category-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
 
-    .radio-group input {
-      margin-right: 5px;
-    }
+        .form-group {
+            margin-bottom: 12px;
+            position: relative;
+        }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
+        .form-group.error .select-input,
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+        .error-message {
+            display: none;
+            color: #dc3545;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 4px;
+            margin-left: 4px;
+        }
 
-    .quantity-group {
-      display: flex;
-      gap: 10px;
-    }
+        .form-group.error .error-message {
+            display: block;
+        }
 
-    .quantity-group input {
-      flex: 1;
-    }
+        .searchable-select {
+            position: relative;
+        }
 
-    #unit {
-      width: 50%;
-      padding: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      color: #555;
-      background-color: #fff;
-    }
+        .select-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            background: white;
+            color: #1a1a1a;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            cursor: pointer;
+        }
 
-    .btn-save {
-      width: 100%;
-      padding: 12px;
-      background-color: #ffc107;
-      border: none;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 6px;
-    }
+        .select-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
 
-    .btn-save:hover {
-      background-color: #e0a800;
-    }
+        .select-input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
 
-    .btn-save:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
+        .select-input::placeholder {
+            color: #95a5a6;
+            font-weight: 400;
+        }
 
-    .alert {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 4px;
-      font-weight: bold;
-      display: none;
-    }
+        .select-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
 
-    .alert.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
+        .searchable-select.active .select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
 
-    .alert.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    .alert.loading {
-      background-color: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeaa7;
-    }
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1a1a;
+            background: #f8f9fa;
+            font-family: inherit;
+        }
 
-    /* Select2 Styling to match regular selects */
-    .select2-container {
-      min-width: 180px !important;
-      box-sizing: border-box;
-    }
+        .search-box:focus {
+            outline: none;
+            background: white;
+        }
 
-    .select2-container--default .select2-selection--single {
-      font-size: 16px !important;
-      border: 1px solid #ccc !important;
-      border-radius: 8px !important;
-      background: #f9f9f9 !important;
-      cursor: pointer;
-      height: 42px !important;
-      box-sizing: border-box !important;
-      padding: 0 !important;
-      line-height: 42px !important;
-    }
+        .search-box::placeholder {
+            color: #95a5a6;
+            font-weight: 400;
+        }
 
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      padding-left: 12px !important;
-      padding-right: 30px !important;
-      line-height: 42px !important;
-      color: #333 !important;
-      margin: 0 !important;
-      height: 42px !important;
-      display: block !important;
-    }
+        .options {
+            max-height: 200px;
+            overflow-y: auto;
+        }
 
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 42px !important;
-      top: 0 !important;
-      right: 8px !important;
-      width: 20px !important;
-    }
+        .option {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 400;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f1f3f4;
+        }
 
-    .select2-container--default .select2-selection--single .select2-selection__arrow b {
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-    }
+        .option:last-child {
+            border-bottom: none;
+        }
 
-    /* Ensure both selects have same appearance when disabled */
-    .select2-container--default.select2-container--disabled .select2-selection--single {
-      background-color: #e9ecef;
-      cursor: not-allowed;
-      color: #6c757d;
-    }
+        .option:hover {
+            background-color: #f8f9fa;
+        }
 
-    .select2-container {
-      z-index: 9999 !important;
-    }
+        .no-options {
+            padding: 12px;
+            color: #6c757d;
+            font-size: 13px;
+            text-align: center;
+            font-style: italic;
+        }
 
-    /* Fix placeholder styling */
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-      color: #6c757d;
-    }
-  </style>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            background: white;
+            color: #1a1a1a;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        input[type="text"]::placeholder {
+            color: #95a5a6;
+            font-weight: 400;
+        }
+
+        .upload-box {
+            text-align: center;
+            border: 2px dashed #cbd5e1;
+            padding: 15px 10px;
+            margin: 12px 0;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-box:hover {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #f0f4ff, #e0e7ff);
+            transform: translateY(-1px);
+        }
+
+        .upload-box.has-image {
+            padding: 10px;
+            min-height: 150px;
+            background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+            border-color: #0ea5e9;
+        }
+
+        .camera-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            border-radius: 12px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            font-size: 20px;
+            box-shadow: 0 6px 12px rgba(255, 179, 0, 0.3);
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .upload-subtext {
+            font-size: 11px;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 3px solid #0ea5e9;
+            box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
+        }
+
+        .image-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .image-action-btn {
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .change-btn {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            color: #2c3e50;
+        }
+
+        .change-btn:hover {
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            transform: translateY(-1px);
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .upload-initial-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-row {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 12px 0;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .radio-item:hover {
+            background: #f8f9fa;
+            border-color: #e9ecef;
+        }
+
+        .radio-item.error {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .radio-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: #667eea;
+        }
+
+        .radio-item label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        .quantity-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(255, 179, 0, 0.3);
+            margin-top: 12px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(255, 179, 0, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .alert {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            display: none;
+            border-left: 3px solid;
+        }
+
+        .alert.success {
+            background: #d1f2eb;
+            color: #0d6838;
+            border-color: #28a745;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .alert.loading {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .iframe-container {
+            display: none;
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+                margin: 5px;
+            }
+            
+            .category-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .radio-row {
+                gap: 20px;
+            }
+            
+            .quantity-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <form id="productForm">
+            <!-- Categories -->
+            <div class="category-row">
+                <div class="form-group" id="categoryGroup">
+                    <select name="category" id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Kitchen & Grocery">Kitchen & Grocery</option>
+                        <option value="Household Essentials">Household Essentials</option>
+                        <option value="Snacks & Drinks">Snacks & Drinks</option>
+                        <option value="Other Home Needs">Other Home Needs</option>
+                        <option value="Stationary">Stationary</option>
+                    </select>
+                    <div class="error-message">Please select a category</div>
+                </div>
 
-<form id="productForm">
-  <div class="category-box">
-    <select name="category" id="category" required>
-      <option value="">Select Category</option>
-      <option value="Kitchen & Grocery">Kitchen & Grocery</option>
-      <option value="Household Essentials">Household Essentials</option>
-      <option value="Snacks & Drinks">Snacks & Drinks</option>
-      <option value="Other Home Needs">Other Home Needs</option>
-      <option value="Stationary">Stationary</option>
-    </select>
+                <div class="form-group" id="subcategoryGroup">
+                    <div class="searchable-select" id="subcategorySelect">
+                        <input type="text" 
+                               class="select-input" 
+                               id="subcategoryInput"
+                               placeholder="Select SubCategory" 
+                               readonly>
+                        <span class="select-arrow">▼</span>
+                        <div class="dropdown" id="subcategoryDropdown">
+                            <input type="text" 
+                                   class="search-box" 
+                                   id="searchBox"
+                                   placeholder="Search subcategories...">
+                            <div class="options" id="optionsList"></div>
+                        </div>
+                        <input type="hidden" name="subcategory" id="subcategory" required>
+                    </div>
+                    <div class="error-message">Please select a subcategory</div>
+                </div>
+            </div>
 
-    <select name="subcategory" id="subcategory" disabled required>
-      <option value="">Select SubCategory</option>
-    </select>
-  </div>
+            <!-- Image Upload -->
+            <div class="form-group" id="imageGroup">
+                <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageFile').click()">
+                    <div class="upload-initial-content" id="uploadInitialContent">
+                        <div class="camera-icon">📷</div>
+                        <div class="upload-text">Click to upload image</div>
+                        <div class="upload-subtext">JPG, PNG, WebP (Max 75 KB)</div>
+                    </div>
+                    <div id="imagePreview" class="image-preview" style="display: none;"></div>
+                    <input type="file" id="imageFile" name="imageFile" class="file-input" accept="image/*">
+                </div>
+                <div class="error-message">Please upload a product image</div>
+            </div>
 
-  <div class="container">
-    <div class="radio-group">
-      <label><input type="radio" name="itemType" value="brand" required> Brand Item</label>
-      <label><input type="radio" name="itemType" value="loose" required> Loose Item</label>
+            <!-- Item Type -->
+            <div class="form-group" id="itemTypeGroup">
+                <div class="radio-row" id="radioRow">
+                    <div class="radio-item">
+                        <input type="radio" name="itemType" value="brand" id="brandItem" required>
+                        <label for="brandItem">Brand Item</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="itemType" value="loose" id="looseItem" required>
+                        <label for="looseItem">Loose Item</label>
+                    </div>
+                </div>
+                <div class="error-message">Please select item type</div>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="form-group" id="barcodeGroup">
+                <input type="text" name="barcode" id="barcode" placeholder="Enter barcode number" required>
+                <div class="error-message">Please enter barcode number</div>
+            </div>
+
+            <div class="form-group" id="brandGroup">
+                <input type="text" name="brand" id="brand" placeholder="Enter brand name" required>
+                <div class="error-message">Please enter brand name</div>
+            </div>
+
+            <div class="form-group" id="productGroup">
+                <input type="text" name="product" id="product" placeholder="Enter complete product name" required>
+                <div class="error-message">Please enter product name</div>
+            </div>
+
+            <div class="form-group">
+                <div class="quantity-row">
+                    <div id="quantityGroup">
+                        <input type="text" name="quantity" id="quantity" placeholder="Enter quantity" required>
+                        <div class="error-message">Please enter valid quantity</div>
+                    </div>
+                    <div id="unitGroup">
+                        <select name="unit" id="unit" required>
+                            <option value="">Unit</option>
+                            <option value="Kg">Kg</option>
+                            <option value="g">g</option>
+                            <option value="L">L</option>
+                            <option value="ml">ml</option>
+                            <option value="Pieces">Pieces</option>
+                            <option value="Combo">Combo</option>
+                            <option value="Pack">Pack</option>
+                            <option value="Sheets">Sheets</option>
+                        </select>
+                        <div class="error-message">Please select unit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn" id="saveBtn">Submit Product</button>
+
+            <!-- Alert -->
+            <div id="alertBox" class="alert"></div>
+        </form>
     </div>
 
-    <div class="form-group">
-      <input type="text" name="barcode" id="barcode" placeholder="BarCode Number" required>
-    </div>
-    <div class="form-group">
-      <input type="text" name="brand" id="brand" placeholder="Enter Brand Name" required>
-    </div>
-    <div class="form-group">
-      <input type="text" name="product" id="product" placeholder="Enter Product Full Name" required>
+    <!-- Hidden iframe -->
+    <div class="iframe-container">
+        <iframe id="submissionFrame" name="submissionFrame"></iframe>
     </div>
 
-    <div class="form-group quantity-group">
-      <input type="text" name="quantity" id="quantity" placeholder="Enter Quantity" required>
-      <select name="unit" id="unit" required>
-        <option value="">Select Unit</option>
-        <option value="Kg">Kg</option>
-        <option value="g">g</option>
-        <option value="L">L</option>
-        <option value="ml">ml</option>
-        <option value="Pieces">Pieces</option>
-        <option value="Combo">Combo</option>
-        <option value="Pack">Pack</option>
-        <option value="Sheets">Sheets</option>
-      </select>
-    </div>
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzPQjV7PJKaTMOxgLHfK2n0aTit7_-aYzshkC6IaOa-WglcksKaj_Sb7zhDMWOnD2h2bg/exec';
 
-    <button type="submit" class="btn-save" id="saveBtn">Submit</button>
-    
-    <div id="alertBox" class="alert"></div>
-  </div>
-</form>
+        const categoryMap = {
+            "Household Essentials": ["Toilet Cleaners", "Floor Cleaners", "Soaps", "Face Creams", "Shampoo", "Tooth Paste", "Hair Oil", "Body Lotion", "Detergent Powder", "Basic Pharma", "Handwash & Sanitizer", "Hair Removals", "Sanitary Pads", "Tooth Brush", "Detergent Bars", "Fabric Care", "Conditioner", "Body Washes", "Face Powders", "Face Wash & Scrub", "Liquid Detergents", "Utensils Cleaners", "Baby Care"],
+            "Kitchen & Grocery": ["Ground Nut", "Toor Dal", "Honey", "Wheat Flour", "Tea Powder", "Local Rice", "Dry Coconut", "Jaggery", "Salt", "Sugar", "Basmati Rice", "Semiya", "Garlic", "Eggs", "Tamarind", "Ghee", "Red Mirchi", "Tumeric", "Chicken & Garam Masala", "Ginger Garlic Paste", "Other Masalas", "Dates", "Cashew Nuts", "Almond & Pista", "Raisins", "Other Dry Fruits", "Mango", "Lemon & Tomato", "Other Pickles", "Sunflower Oil", "Groundnut Oil", "Coffee Powder", "Healthy Drinks", "Other Oils", "Papads", "Poha", "Gram Flour", "Maida", "Other Flours", "Chana Dal", "Phutana", "Other Dals", "Upma Rava", "Idli Rava", "Bombay Rava", "Baking Soda", "Jeera", "Jeera & Mustard Seeds", "Dalchini Sticks & Somp", "Coriander & Pepper seeds", "Other Spices", "Milk Maid", "Gulab Jamun", "Saffron", "Peni Rava", "Other Sweets", "Oats"],
+            "Other Home Needs": ["Cloth Clips", "Battery Cell", "Betel Nut", "Rangoli Powder", "CowDung Powder", "Ear Buds", "Toothpick Sticks", "Mouth Freshner", "Candles", "Match Box", "Plastic Bag", "Tissue Papers", "Agarbatti", "Coconut", "Camphor & Sambrani", "Kumkum & Vibhuti", "Deepa Oil & Diyabatti", "Broom", "Mop", "Home", "Bathroom", "Mosquito", "Cockroach", "Rat", "Ant", "Other", "Plates", "Glasses", "Cups & Spoons", "Paper Rolls", "Aluminium Foil", "Foil Container"],
+            "Snacks & Drinks": ["Soft Drinks", "Cookies", "Chips", "Tubs & Party Packs", "Pasta", "Bhujia & Namkeens", "Indian Snacks", "Sweets", "Jam", "Ketchup", "Spreads & Dips", "Instant Noodles", "Cup Noodles", "Korean Noodles", "Hakka Noodles", "Other Noodles", "Energy Drinks", "Juices & Fruit Drinks", "Cones & Sticks", "Kulfi", "Cups", "Other Ice Creams", "Soups", "Cheese", "Butter", "Paneer", "Buns", "Cadbury", "Nestle", "Amul", "Other Chocolates", "Marie & Digestive", "Cream Biscuits", "Cakes & Pies", "Rusk"],
+            "Stationary": ["Books", "Fevi Sticks & Gums", "Stapler & Pins", "Cello Tape", "Chalks", "Pens & Pencils", "Sketch Pens & Glitters", "Files", "Geometry Box", "Exam Pad", "Color Pens & Paint", "Pen Holder"]
+        };
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        let submissionInProgress = false;
+        let currentOptions = [];
 
-<script>
-  // Category to Subcategory mapping
-  const categoryMap = {
-    "Household Essentials": ["Toilet Cleaners", "Floor Cleaners", "Soaps", "Face Creams", "Shampoo", "Tooth Paste", "Hair Oil", "Body Lotion", "Detergent Powder", "Basic Pharma", "Handwash & Sanitizer", "Hair Removals", "Sanitary Pads", "Tooth Brush", "Detergent Bars", "Fabric Care", "Conditioner", "Body Washes", "Face Powders", "Face Wash & Scrub", "Liquid Detergents", "Utensils Cleaners", "Baby Care"],
-    "Kitchen & Grocery": ["Ground Nut", "Toor Dal", "Honey", "Wheat Flour", "Tea Powder", "Local Rice", "Dry Coconut", "Jaggery", "Salt", "Sugar", "Basmati Rice", "Semiya", "Garlic", "Eggs", "Tamarind", "Ghee", "Red Mirchi", "Tumeric", "Chicken & Garam Masala", "Ginger Garlic Paste", "Other Masalas", "Dates", "Cashew Nuts", "Almond & Pista", "Raisins", "Other Dry Fruits", "Mango", "Lemon & Tomato", "Other Pickles", "Sunflower Oil", "Groundnut Oil", "Coffee Powder", "Healthy Drinks", "Other Oils", "Papads", "Poha", "Gram Flour", "Maida", "Other Flours", "Chana Dal", "Phutana", "Other Dals", "Upma Rava", "Idli Rava", "Bombay Rava", "Baking Soda", "Jeera", "Jeera & Mustard Seeds", "Dalchini Sticks & Somp", "Coriander & Pepper seeds", "Other Spi", "Milk Maid", "Gulab Jamun", "Saffron", "Peni Rava", "Other Sweets", "Oats"],
-    "Other Home Needs": ["Cloth Clips", "Battery Cell", "Betel Nut", "Rangoli Powder", "CowDung Powder", "Ear Buds", "Toothpick Sticks", "Mouth Freshner", "Candles", "Match Box", "Plastic Bag", "Tissue Papers", "Agarbatti", "Coconut", "Camphor & Sambrani", "Kumkum & Vibhuti", "Deepa Oil & Diyabatti", "Broom", "Mop", "Home", "Bathroom", "Mosquito", "Cockroach", "Rat", "Ant", "Other", "Plates", "Glasses", "Cups & Spoons", "Paper Rolls", "Aluminium Foil", "Foil Container"],
-    "Snacks & Drinks": ["Soft Drinks", "Cookies", "Chips", "Tubs & Party Packs", "Pasta", "Bhujia & Namkeens", "Indian Snacks", "Sweets", "Jam", "Ketchup", "Spreads & Dips", "Instant Noodles", "Cup Noodles", "Korean Noodles", "Hakka Noodles", "Other Noodles", "Energy Drinks", "Juices & Fruit Drinks", "Cones & Sticks", "Kulfi", "Cups", "Other Ice Creams", "Soups", "Cheese", "Butter", "Paneer", "Buns", "Cadbury", "Nestle", "Amul", "Other Chocolates", "Marie & Digestive", "Cream Biscuits", "Cakes & Pies", "Rusk"],
-    "Stationary": ["Books", "Fevi Sticks & Gums", "Stapler & Pins", "Cello Tape", "Chalks", "Pens & Pencils", "Sketch Pens & Glitters", "Files", "Geometry Box", "Exam Pad", "Color Pens & Paint", "Pen Holder"]
-  };
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert ${type}`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => alertBox.style.display = 'none', 3000);
+            }
+        }
 
-  const alertBox = document.getElementById('alertBox');
-  const saveBtn = document.getElementById('saveBtn');
+        function clearErrors() {
+            document.querySelectorAll('.form-group.error').forEach(group => {
+                group.classList.remove('error');
+            });
+            document.querySelectorAll('.radio-item.error').forEach(item => {
+                item.classList.remove('error');
+            });
+        }
 
-  function showAlert(message, type) {
-    alertBox.className = `alert ${type}`;
-    alertBox.textContent = message;
-    alertBox.style.display = 'block';
-    
-    if (type === 'success') {
-      setTimeout(() => {
-        alertBox.style.display = 'none';
-      }, 3000);
-    }
-  }
+        function showFieldError(fieldId, message) {
+            const group = document.getElementById(fieldId + 'Group');
+            if (group) {
+                group.classList.add('error');
+                const errorElement = group.querySelector('.error-message');
+                if (errorElement && message) {
+                    errorElement.textContent = message;
+                }
+            }
+        }
 
-  // Form validation
-  function validateForm(formData) {
-    const requiredFields = ['category', 'subcategory', 'itemType', 'barcode', 'brand', 'product', 'quantity', 'unit'];
-    
-    for (let field of requiredFields) {
-      if (!formData.get(field) || formData.get(field).trim() === '') {
-        showAlert(`Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field`, 'error');
-        return false;
-      }
-    }
-    return true;
-  }
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
 
-  // Initialize when DOM is ready
-  $(document).ready(function() {
-    // Initialize Select2 for subcategory with proper configuration
-    $('#subcategory').select2({
-      placeholder: 'Select SubCategory',
-      allowClear: false,
-      width: '100%'
-    });
+        function validateImageFile(file) {
+            if (file.size > 75 * 1024) throw new Error('Image must be less than 75KB');
+            const types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!types.includes(file.type.toLowerCase())) throw new Error('Invalid image format');
+        }
 
-    console.log('Select2 initialized');
+        function previewImage(file) {
+            const preview = document.getElementById('imagePreview');
+            const uploadBox = document.getElementById('uploadBox');
+            const initialContent = document.getElementById('uploadInitialContent');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Product Image">
+                    <div class="image-actions">
+                        <button type="button" class="image-action-btn change-btn" onclick="document.getElementById('imageFile').click()">Change</button>
+                        <button type="button" class="image-action-btn remove-btn" onclick="removeImage()">Remove</button>
+                    </div>
+                `;
+                
+                initialContent.style.display = 'none';
+                preview.style.display = 'block';
+                uploadBox.classList.add('has-image');
+                uploadBox.onclick = null;
+            };
+            reader.readAsDataURL(file);
+        }
 
-    // Category change handler
-    $('#category').on('change', function() {
-      const selectedCategory = $(this).val();
-      console.log('Selected category:', selectedCategory);
-      
-      // Clear subcategory dropdown
-      $('#subcategory').empty().append('<option value="">Select SubCategory</option>');
-      
-      if (selectedCategory && categoryMap[selectedCategory]) {
-        // Enable subcategory dropdown
-        $('#subcategory').prop('disabled', false);
-        
-        // Add subcategory options
-        categoryMap[selectedCategory].forEach(function(subcategory) {
-          $('#subcategory').append(new Option(subcategory, subcategory));
+        function removeImage() {
+            const preview = document.getElementById('imagePreview');
+            const uploadBox = document.getElementById('uploadBox');
+            const initialContent = document.getElementById('uploadInitialContent');
+            const fileInput = document.getElementById('imageFile');
+            
+            preview.innerHTML = '';
+            preview.style.display = 'none';
+            initialContent.style.display = 'flex';
+            uploadBox.classList.remove('has-image');
+            uploadBox.onclick = () => fileInput.click();
+            fileInput.value = '';
+        }
+
+        function validateForm(formData) {
+            clearErrors();
+            let hasErrors = false;
+
+            if (!formData.get('category')?.trim()) {
+                showFieldError('category');
+                hasErrors = true;
+            }
+
+            if (!formData.get('subcategory')?.trim()) {
+                showFieldError('subcategory');
+                hasErrors = true;
+            }
+
+            const imageFile = document.getElementById('imageFile').files[0];
+            if (!imageFile) {
+                showFieldError('image');
+                hasErrors = true;
+            }
+
+            if (!formData.get('itemType')?.trim()) {
+                showFieldError('itemType');
+                document.querySelectorAll('.radio-item').forEach(item => {
+                    item.classList.add('error');
+                });
+                hasErrors = true;
+            }
+
+            if (!formData.get('barcode')?.trim()) {
+                showFieldError('barcode');
+                hasErrors = true;
+            }
+
+            if (!formData.get('brand')?.trim()) {
+                showFieldError('brand');
+                hasErrors = true;
+            }
+
+            if (!formData.get('product')?.trim()) {
+                showFieldError('product');
+                hasErrors = true;
+            }
+
+            const quantity = formData.get('quantity')?.trim();
+            if (!quantity) {
+                showFieldError('quantity', 'Please enter quantity');
+                hasErrors = true;
+            } else if (isNaN(parseFloat(quantity))) {
+                showFieldError('quantity', 'Quantity must be a number');
+                hasErrors = true;
+            }
+
+            if (!formData.get('unit')?.trim()) {
+                showFieldError('unit');
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                showAlert('Please fill all required fields correctly', 'error');
+                const firstError = document.querySelector('.form-group.error, .radio-item.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return !hasErrors;
+        }
+
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('subcategoryInput').value = '';
+            document.getElementById('subcategoryInput').placeholder = 'Select category first';
+            document.getElementById('subcategory').value = '';
+            removeImage();
+            currentOptions = [];
+            closeDropdown();
+            clearErrors();
+        }
+
+        function openDropdown() {
+            const dropdown = document.getElementById('subcategoryDropdown');
+            const selectElement = document.getElementById('subcategorySelect');
+            const searchBox = document.getElementById('searchBox');
+            
+            selectElement.classList.add('active');
+            dropdown.style.display = 'block';
+            searchBox.value = '';
+            renderOptions(currentOptions);
+            searchBox.focus();
+        }
+
+        function closeDropdown() {
+            const dropdown = document.getElementById('subcategoryDropdown');
+            const selectElement = document.getElementById('subcategorySelect');
+            
+            selectElement.classList.remove('active');
+            dropdown.style.display = 'none';
+        }
+
+        function renderOptions(options) {
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+            
+            if (options.length === 0) {
+                const noOptions = document.createElement('div');
+                noOptions.className = 'no-options';
+                noOptions.textContent = 'No subcategories found';
+                optionsList.appendChild(noOptions);
+                return;
+            }
+            
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => selectOption(option));
+                optionsList.appendChild(optionDiv);
+            });
+        }
+
+        function selectOption(value) {
+            document.getElementById('subcategoryInput').value = value;
+            document.getElementById('subcategory').value = value;
+            closeDropdown();
+            document.getElementById('subcategoryGroup').classList.remove('error');
+        }
+
+        function filterOptions(searchTerm) {
+            const filtered = currentOptions.filter(option => 
+                option.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderOptions(filtered);
+        }
+
+        async function submitForm(e) {
+            e.preventDefault();
+            if (submissionInProgress) return;
+
+            const formData = new FormData(e.target);
+            if (!validateForm(formData)) return;
+
+            submissionInProgress = true;
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Submitting...';
+            showAlert('Saving product...', 'loading');
+
+            try {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = SCRIPT_URL;
+                form.target = 'submissionFrame';
+                form.style.display = 'none';
+
+                ['category', 'subcategory', 'itemType', 'barcode', 'brand', 'product', 'quantity', 'unit'].forEach(field => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = field;
+                    input.value = formData.get(field) || '';
+                    form.appendChild(input);
+                });
+
+                const imageFile = document.getElementById('imageFile').files[0];
+                if (imageFile) {
+                    validateImageFile(imageFile);
+                    const base64Data = await fileToBase64(imageFile);
+                    
+                    ['image', 'imageName', 'imageMimeType'].forEach((field, i) => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = field;
+                        input.value = [base64Data, imageFile.name, imageFile.type][i];
+                        form.appendChild(input);
+                    });
+                }
+
+                const responsePromise = new Promise((resolve) => {
+                    const timeout = setTimeout(() => resolve({ success: true }), 10000);
+                    document.getElementById('submissionFrame').onload = () => {
+                        clearTimeout(timeout);
+                        resolve({ success: true });
+                    };
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+                await responsePromise;
+                form.remove();
+
+                showAlert('Product saved successfully!', 'success');
+                resetForm();
+
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            } finally {
+                submissionInProgress = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Submit Product';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Category change handler
+            document.getElementById('category').addEventListener('change', (e) => {
+                const subcategoryInput = document.getElementById('subcategoryInput');
+                
+                subcategoryInput.value = '';
+                document.getElementById('subcategory').value = '';
+                closeDropdown();
+                
+                document.getElementById('categoryGroup').classList.remove('error');
+                
+                if (e.target.value && categoryMap[e.target.value]) {
+                    subcategoryInput.placeholder = 'Select SubCategory';
+                    subcategoryInput.style.cursor = 'pointer';
+                    currentOptions = categoryMap[e.target.value];
+                } else {
+                    subcategoryInput.placeholder = 'Select category first';
+                    subcategoryInput.style.cursor = 'not-allowed';
+                    currentOptions = [];
+                }
+            });
+
+            // Subcategory input click handler
+            document.getElementById('subcategoryInput').addEventListener('click', () => {
+                if (currentOptions.length > 0) {
+                    const dropdown = document.getElementById('subcategoryDropdown');
+                    if (dropdown.style.display === 'block') {
+                        closeDropdown();
+                    } else {
+                        openDropdown();
+                    }
+                }
+            });
+
+            // Search box input handler
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                filterOptions(e.target.value);
+            });
+
+            // Click outside to close dropdown
+            document.addEventListener('click', (e) => {
+                const selectElement = document.getElementById('subcategorySelect');
+                if (!selectElement.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Image file handler
+            document.getElementById('imageFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        validateImageFile(file);
+                        previewImage(file);
+                        document.getElementById('imageGroup').classList.remove('error');
+                    } catch (error) {
+                        showAlert(error.message, 'error');
+                        e.target.value = '';
+                    }
+                }
+            });
+
+            // Radio button change handlers
+            document.querySelectorAll('input[name="itemType"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    document.getElementById('itemTypeGroup').classList.remove('error');
+                    document.querySelectorAll('.radio-item').forEach(item => {
+                        item.classList.remove('error');
+                    });
+                });
+            });
+
+            // Input field handlers to clear errors on input
+            ['barcode', 'brand', 'product', 'quantity', 'unit'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', () => {
+                        document.getElementById(fieldId + 'Group').classList.remove('error');
+                    });
+                }
+            });
+
+            // Form submit handler
+            document.getElementById('productForm').addEventListener('submit', submitForm);
         });
-        
-        console.log('Added subcategories:', categoryMap[selectedCategory].length);
-      } else {
-        // Disable subcategory dropdown
-        $('#subcategory').prop('disabled', true);
-      }
-      
-      // Refresh Select2
-      $('#subcategory').trigger('change');
-    });
-
-    console.log('Category change handler attached');
-  });
-
-  // Form submission
-  document.getElementById('productForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    // Validate form
-    if (!validateForm(formData)) {
-      return;
-    }
-
-    // Disable button and show loading
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
-    showAlert('Saving product...', 'loading');
-
-    try {
-      // Prepare data object
-      const data = {
-        category: formData.get('category'),
-        subcategory: formData.get('subcategory'),
-        itemType: formData.get('itemType'),
-        barcode: formData.get('barcode'),
-        brand: formData.get('brand'),
-        product: formData.get('product'),
-        quantity: formData.get('quantity'),
-        unit: formData.get('unit'),
-        timestamp: new Date().toISOString()
-      };
-
-      console.log('Sending data:', data);
-
-      // Send to Google Apps Script
-      const response = await fetch('https://script.google.com/macros/s/AKfycbxGjpy-K7ujyqp8xvOO7da7TkZoCjICt2-QULAwjXQUQVoTvzeGMxAy9VK7xQJU_Vz6/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
-
-      console.log('Response received:', response);
-      
-      showAlert('Product saved successfully!', 'success');
-      
-      // Reset form
-      document.getElementById('productForm').reset();
-      $('#subcategory').empty().append('<option value="">Select SubCategory</option>');
-      $('#subcategory').prop('disabled', true).trigger('change');
-
-    } catch (error) {
-      console.error('Submission error:', error);
-      showAlert(`Error saving product: ${error.message}`, 'error');
-    } finally {
-      // Re-enable button
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save';
-    }
-  });
-</script>
-
+    </script>
 </body>
 </html>
